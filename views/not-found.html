@@ -3,10 +3,25 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Link not found! | dekcpe</title>
+        <title>Link not found! | dekcpe.link</title>
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     </head>
-    <body>
-        [Placeholder] Link {{ .Slug }} not found!
+    <body class="bg-[#f8f7f7] text-[##09090b] min-h-screen flex flex-col">
+        <header class="sticky top-0 z-50 -mb-4 px-4 pb-4">
+            <div class="fade-bottom bg-background/15 absolute left-0 h-24 w-full backdrop-blur-lg"></div>
+            <div class="max-w-container relative mx-auto">
+                <nav data-slot="navbar" class="flex items-center justify-between py-4">
+                    <nav data-slot="navbar-left" class="flex items-center justify-start gap-4">
+                        <div class="flex items-center gap-2 text-xl font-bold">
+                            <h3 class="text-xl font-bold">dekcpe.link 🔗</h3>
+                        </div>
+                    </nav>
+                </nav>
+            </div>
+        </header>
+        <div class="flex flex-col items-center justify-center w-full flex-1">
+            <h1 class="text-8xl font-bold mb-4 text-[#4a60ac]">404</h1>
+            <p class="text-lg">The link <code class="bg-[#e3e4e5] rounded-sm">/{{ .Slug }}</code> does not exist.</p>
+        </div>
     </body>
 </html>
