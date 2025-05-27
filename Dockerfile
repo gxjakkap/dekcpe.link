@@ -11,4 +11,4 @@ COPY --from=builder /app/dekcpedotlink /dekcpedotlink
 RUN chown fiber:fiber /dekcpedotlink
 USER fiber
 EXPOSE 3000
-ENTRYPOINT ["/dekcpe.link"]
+ENTRYPOINT ["/dekcpedotlink"]
