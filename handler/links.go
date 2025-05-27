@@ -1,0 +1,45 @@
+package handler
+
+import (
+	"log"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gxjakkap/dekcpe.link/model"
+	"github.com/gxjakkap/dekcpe.link/utils"
+)
+
+func (h *Handler) RedirectToLink(c *fiber.Ctx) error {
+	slug := c.Params("slug")
+	link, err := h.linkStore.GetLinkBySlug(slug)
+
+	if err != nil {
+		return c.Render("not-found", fiber.Map{
+			"Slug": slug,
+		})
+	}
+
+	go func(ip, ua, utmSource string, linkID int) {
+		var geo *model.GeoLocation
+		if geo, err = utils.GetGeoFromIP(ip); err != nil {
+			geo = &model.GeoLocation{
+				Country:  "Unknown",
+				Region:   "Unknown",
+				City:     "Unknown",
+				Timezone: "Unknown",
+			}
+		}
+
+		click := &model.Click{
+			LinkID:      linkID,
+			UserAgent:   ua,
+			UTMSource:   &utmSource,
+			Geolocation: *geo,
+		}
+
+		if err := h.clicksStore.Create(click); err != nil {
+			log.Printf("Failed to create click: %v", err)
+		}
+	}(c.IP(), c.Get("User-Agent"), c.Query("utm_source"), link.ID)
+
+	return c.Redirect(link.URL, fiber.StatusFound)
+}
