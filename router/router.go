@@ -15,8 +15,11 @@ func New() *fiber.App {
 	vp := filepath.Join(rp, "views")
 	e := html.New(vp, ".html")
 	f := fiber.New(fiber.Config{
-		Views: e,
+		Views:                   e,
+		EnableTrustedProxyCheck: true,
+		ProxyHeader:             fiber.HeaderXForwardedFor,
 	})
+
 	f.Use(logger.New())
 	f.Use(cors.New(cors.Config{
 		AllowOrigins: "*",

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,6 +29,7 @@ func (h *Handler) RedirectToLink(c *fiber.Ctx) error {
 	}
 
 	go func(ip, ua, utmSource string, linkID int) {
+		fmt.Printf("ip: %s, link: %d\n", ip, linkID)
 		var geo *model.GeoLocation
 		if geo, err = utils.GetGeoFromIP(ip); err != nil {
 			geo = &model.GeoLocation{
