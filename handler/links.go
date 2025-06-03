@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,8 +27,9 @@ func (h *Handler) RedirectToLink(c *fiber.Ctx) error {
 		})
 	}
 
-	go func(ip, ua, utmSource string, linkID int) {
-		fmt.Printf("ip: %s, link: %d\n", ip, linkID)
+	go func(ip, ua, utmSource string, linkID int, cfip string, xrip string) {
+		log.Printf("ip: %s, link: %d", ip, linkID)
+		log.Printf("cfip: %s, realip: %s", cfip, xrip)
 		var geo *model.GeoLocation
 		if geo, err = utils.GetGeoFromIP(ip); err != nil {
 			geo = &model.GeoLocation{
@@ -50,6 +50,6 @@ func (h *Handler) RedirectToLink(c *fiber.Ctx) error {
 		if err := h.clicksStore.Create(click); err != nil {
 			log.Printf("Failed to create click: %v", err)
 		}
-	}(c.Get("X-Forwarded-For"), c.Get("User-Agent"), c.Query("utm_source"), link.ID)
+	}(c.Get("X-Forwarded-For"), c.Get("User-Agent"), c.Query("utm_source"), link.ID, c.Get("CF-Connecting-IP"), c.Get("X-Real-IP"))
 	return c.Redirect(link.URL, fiber.StatusFound)
 }
