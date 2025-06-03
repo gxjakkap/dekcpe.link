@@ -40,6 +40,8 @@ func GetGeoFromIP(ip string) (*model.GeoLocation, error) {
 
 	body, err := io.ReadAll(resp.Body)
 
+	resp.Body.Close()
+
 	if err != nil {
 		log.Fatalln("Failed parsing body for geolocation info")
 		return nil, err
@@ -72,10 +74,24 @@ func GetIPFromHeaders(c *fiber.Ctx) (ip string, err error) {
 	}
 
 	if pm == "cf_argo" {
-		return c.Get("CF-Connecting-IP"), nil
+		cfIP := c.Get("CF-Connecting-IP")
+		if cfIP == "" {
+			return c.IP(), nil
+		}
+		return cfIP, nil
 	}
 
-	return strings.Split(c.Get(fiber.HeaderXForwardedFor), ",")[0], nil
+	forwardedFor := c.Get(fiber.HeaderXForwardedFor)
+	if forwardedFor == "" {
+		return c.IP(), nil
+	}
+
+	ips := strings.Split(forwardedFor, ",")
+	if len(ips) == 0 || strings.TrimSpace(ips[0]) == "" {
+		return c.IP(), nil
+	}
+
+	return strings.TrimSpace(ips[0]), nil
 }
 
 func GetForwardingHeader() (header string) {
