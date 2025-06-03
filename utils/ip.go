@@ -75,5 +75,19 @@ func GetIPFromHeaders(c *fiber.Ctx) (ip string, err error) {
 		return c.Get("CF-Connecting-IP"), nil
 	}
 
-	return strings.Split(c.Get("X-Forwarding-IP"), ",")[0], nil
+	return strings.Split(c.Get(fiber.HeaderXForwardedFor), ",")[0], nil
+}
+
+func GetForwardingHeader() (header string) {
+	pm := os.Getenv("PROXY_MODE")
+
+	if pm == "" {
+		return ""
+	}
+
+	if pm == "cf_argo" {
+		return "CF-Connecting-IP"
+	}
+
+	return fiber.HeaderXForwardedFor
 }

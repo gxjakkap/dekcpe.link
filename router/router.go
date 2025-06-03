@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
+	"github.com/gxjakkap/dekcpe.link/utils"
 )
 
 func New() *fiber.App {
@@ -20,7 +21,7 @@ func New() *fiber.App {
 	f := fiber.New(fiber.Config{
 		Views:                   e,
 		EnableTrustedProxyCheck: tpc,
-		ProxyHeader:             fiber.HeaderXForwardedFor,
+		ProxyHeader:             utils.GetForwardingHeader(),
 	})
 
 	f.Use(logger.New())
