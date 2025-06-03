@@ -6,18 +6,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 func New() *gorm.DB {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Warning: No .env file found")
-	}
-
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{

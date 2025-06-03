@@ -14,9 +14,12 @@ func New() *fiber.App {
 	rp, _ := os.Getwd()
 	vp := filepath.Join(rp, "views")
 	e := html.New(vp, ".html")
+
+	tpc := (os.Getenv("PROXY_MODE") != "")
+
 	f := fiber.New(fiber.Config{
 		Views:                   e,
-		EnableTrustedProxyCheck: true,
+		EnableTrustedProxyCheck: tpc,
 		ProxyHeader:             fiber.HeaderXForwardedFor,
 	})
 

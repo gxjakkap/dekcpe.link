@@ -6,7 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/gxjakkap/dekcpe.link/model"
 )
 
@@ -59,4 +62,18 @@ func GetGeoFromIP(ip string) (*model.GeoLocation, error) {
 	}
 
 	return r, nil
+}
+
+func GetIPFromHeaders(c *fiber.Ctx) (ip string, err error) {
+	pm := os.Getenv("PROXY_MODE")
+
+	if pm == "" {
+		return c.IP(), nil
+	}
+
+	if pm == "cf_argo" {
+		return c.Get("CF-Connecting-IP"), nil
+	}
+
+	return strings.Split(c.Get("X-Forwarding-IP"), ",")[0], nil
 }
