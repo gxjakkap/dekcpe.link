@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/gxjakkap/dekcpe.link/db"
 	"github.com/gxjakkap/dekcpe.link/handler"
@@ -15,6 +17,9 @@ func main() {
 	if err != nil {
 		fmt.Println("Warning: No .env file found")
 	}
+
+	pm := os.Getenv("PROXY_MODE")
+	log.Printf("Proxy Mode: %s", pm)
 
 	r := router.New()
 	d := db.New()

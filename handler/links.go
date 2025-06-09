@@ -26,11 +26,13 @@ func (h *Handler) RedirectToLink(c *fiber.Ctx) error {
 			"Slug": slug,
 		})
 	}
-	go func(ua, utmSource string, linkID int) {
-		ip, err := utils.GetIPFromHeaders(c)
-		if err != nil {
-			log.Fatalf("failed to get ip from req")
-		}
+
+	ip, err := utils.GetIPFromHeaders(c)
+	if err != nil {
+		log.Printf("failed to get ip from req")
+	}
+
+	go func(ip, ua, utmSource string, linkID int) {
 		log.Printf("ip: %s, link: %d", ip, linkID)
 		var geo *model.GeoLocation
 		if geo, err = utils.GetGeoFromIP(ip); err != nil {
@@ -52,6 +54,6 @@ func (h *Handler) RedirectToLink(c *fiber.Ctx) error {
 		if err := h.clicksStore.Create(click); err != nil {
 			log.Printf("Failed to create click: %v", err)
 		}
-	}(c.Get("User-Agent"), c.Query("utm_source"), link.ID)
+	}(ip, c.Get("User-Agent"), c.Query("utm_source"), link.ID)
 	return c.Redirect(link.URL, fiber.StatusFound)
 }
