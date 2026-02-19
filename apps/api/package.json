@@ -1,0 +1,9 @@
+{
+	"name": "dekcpe-link",
+	"version": "0.0.0",
+	"scripts": {
+		"build": "go build -o dist/main main.go",
+		"dev": "go run main.go",
+		"start": "./dist/main"
+	}
+}

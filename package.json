@@ -1,0 +1,23 @@
+{
+  "name": "dekcpe-mono",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "db:migrate": "tsx scripts/migrate.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.11",
+    "prettier": "latest",
+    "tsx": "^4.21.0",
+    "turbo": "latest"
+  },
+  "packageManager": "bun@1.0.0"
+}

@@ -1,0 +1,98 @@
+name: Build Simple Storage API Docker Image
+
+on:
+  push:
+    paths:
+      - "apps/ss/src/**/*"
+      - "apps/ss/Dockerfile"
+      - "apps/ss/package.json"
+      - "bun.lock"
+      - ".github/workflows/**/*"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BASE: ghcr.io/${{ github.repository_owner }}/dekcpe-dash
+
+jobs:
+  build-and-push:
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    runs-on: ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || 'ubuntu-24.04-arm' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build native binary
+        run: |
+          if [ "${{ matrix.arch }}" = "amd64" ]; then
+            TARGET="bun-linux-x64"
+            PLATFORM="linux/amd64"
+          else
+            TARGET="bun-linux-arm64"
+            PLATFORM="linux/arm64"
+          fi
+
+          mkdir -p build
+          bun build --compile --minify --target="$TARGET" src/index.ts --outfile build/server
+
+          # Save platform to env for the next step
+          echo "DOCKER_PLATFORM=$PLATFORM" >> $GITHUB_ENV
+
+      - name: Build & push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/ss/Dockerfile
+          push: true
+          platforms: ${{ env.DOCKER_PLATFORM }}
+          tags: ${{ env.IMAGE_BASE }}:${{ matrix.arch }}
+          build-args: |
+            BINARY=build/server
+
+  create-manifest:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create multi-arch manifest
+        run: |
+          # Combine the specific arch tags into one 'latest' tag
+          docker buildx imagetools create -t ${{ env.IMAGE_BASE }}:latest \
+            ${{ env.IMAGE_BASE }}:amd64 \
+            ${{ env.IMAGE_BASE }}:arm64
+
+          echo "Multi-arch image created: ${{ env.IMAGE_BASE }}:latest"
