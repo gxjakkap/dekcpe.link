@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  transpilePackages: ["@repo/db", "@repo/const"],
 };
 
 export default nextConfig;

@@ -5,3 +5,4 @@ const connectionString = `postgres://${process.env.PG_USER ?? "postgres"}:${proc
 const pool = postgres(connectionString, { max: 1 })
 
 export const db = drizzle(pool)
+export * from "./schema"
