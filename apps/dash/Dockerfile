@@ -11,6 +11,7 @@ COPY package.json bun.lock* ./
 COPY apps/dash/package.json ./apps/dash/
 COPY packages/db/package.json ./packages/db/
 COPY packages/const/package.json ./packages/const/
+COPY apps/api/package.json ./apps/api/
 
 COPY packages/db ./packages/db
 COPY packages/const ./packages/const
