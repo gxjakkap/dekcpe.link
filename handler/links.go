@@ -2,6 +2,7 @@ package handler
 
 import (
 	"log"
+	"net/url"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gxjakkap/dekcpe.link/model"
@@ -55,5 +56,26 @@ func (h *Handler) RedirectToLink(c *fiber.Ctx) error {
 			log.Printf("Failed to create click: %v", err)
 		}
 	}(ip, c.Get("User-Agent"), c.Query("utm_source"), link.ID)
-	return c.Redirect(link.URL, fiber.StatusFound)
+	redirectURL := link.URL
+	utmSource := c.Query("utm_source")
+	if utmSource != "" {
+		parsed, err := url.Parse(link.URL)
+		if err == nil {
+			query := parsed.Query()
+			if _, exists := query["utm_source"]; !exists {
+				query.Set("utm_source", utmSource)
+				parsed.RawQuery = query.Encode()
+				redirectURL = parsed.String()
+			}
+		}
+	}
+	return c.Redirect(redirectURL, fiber.StatusFound)
+}
+
+func (h *Handler) CheckAlive(c *fiber.Ctx) error {
+	data := &model.CheckAliveResponse{
+		Status: 200,
+	}
+
+	return c.JSON(data)
 }
