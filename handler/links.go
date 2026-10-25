@@ -35,8 +35,9 @@ func (h *Handler) RedirectToLink(c *fiber.Ctx) error {
 
 	go func(ip, ua, utmSource string, linkID int) {
 		log.Printf("ip: %s, link: %d", ip, linkID)
-		var geo *model.GeoLocation
-		if geo, err = utils.GetGeoFromIP(ip); err != nil {
+		geo, err := utils.GetGeoFromIP(ip)
+		if err != nil {
+			log.Printf("geolocation lookup failed: %v", err)
 			geo = &model.GeoLocation{
 				Country:  "Unknown",
 				Region:   "Unknown",
