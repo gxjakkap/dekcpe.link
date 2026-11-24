@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Link struct {
@@ -10,8 +12,8 @@ type Link struct {
 	URL       string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"not null;default:now()"`
 	UpdatedAt time.Time `gorm:"not null;default:now()"`
-	Owner     string    `gorm:"not null"`
+	// Set by the dashboard on delete; gorm adds `deleted_at IS NULL` to every query.
+	DeletedAt gorm.DeletedAt
 
-	User   User    `gorm:"foreignKey:Owner;references:ID;constraint:OnDelete:CASCADE"`
 	Clicks []Click `gorm:"foreignKey:LinkID"`
 }
